@@ -45,3 +45,32 @@ struct TreeNode {
 //vector<TreeNode*> generateTrees(int n) {
 //    return getAns(1, n);
 //}
+
+// dp solution, make recursion bottom up
+TreeNode* clone(TreeNode* cur, int offset) {
+	if (cur == nullptr) return nullptr;
+	TreeNode* node = new TreeNode(cur->val + offset);
+	node->left = clone(cur->left, offset);
+	node->right = clone(cur->right, offset);
+	return node;
+}
+
+vector<TreeNode*> generateTrees(int n) {
+	vector<vector<TreeNode*>> dp(n + 1, vector<TreeNode*>());
+	dp[0] = vector<TreeNode*>(1, nullptr);
+	for (int len = 1; len <= n; len++) {
+		for (int root = 1; root <= len; root++) {
+			int left = root - 1;
+			int right = len - root;
+			for (auto leftchild : dp[left]) {
+				for (auto rightchild : dp[right]) {
+					TreeNode* cur_root = new TreeNode(root);
+					cur_root->left = leftchild;
+					cur_root->right = clone(rightchild, root);
+					dp[len].push_back(cur_root);
+				}
+			}
+		}
+	}
+	return dp[n];
+}
